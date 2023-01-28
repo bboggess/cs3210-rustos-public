@@ -16,7 +16,7 @@ OBJS := blinky.o init.o
 all: blinky.bin
 
 blinky.bin: blinky.elf
-	llvm-objcopy -O binary $< $@
+	llvm-objcopy-14 -O binary $< $@
 
 blinky.elf: $(OBJS) layout.ld
 	ld.lld -m aarch64elf $(OBJS) -o $@ -Tlayout.ld

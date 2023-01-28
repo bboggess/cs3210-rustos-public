@@ -4,7 +4,7 @@ KERN := blinky
 KERN_DEBUG := target/aarch64-unknown-none/debug/${KERN}
 KERN_RELEASE := target/aarch64-unknown-none/release/${KERN}
 
-OBJCPY := cargo objcopy -- --strip-all -O binary
+OBJCPY := cargo objcopy --bin -- --strip-all -O binary
 
 .PHONY: all debug release qemu objdump nm check clean install test
 
@@ -18,7 +18,7 @@ define xbuild
 	@cp -f $(1) build/$(KERN).elf
 
 	@echo "+ Building build/$(KERN).bin [objcopy]"
-	@$(OBJCPY) $(1) build/$(KERN).bin
+	@cargo objcopy --bin $(KERN) -- --strip-all -O binary $(1)
 endef
 
 debug:
