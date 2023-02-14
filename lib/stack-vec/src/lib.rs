@@ -137,6 +137,9 @@ impl<'a, T> DerefMut for StackVec<'a, T> {
     }
 }
 
+/// Iterates over a StackVec in order. Note that this order is different than
+/// what you would get by pushing and then popping -- values are iterated in
+/// the order they were pushed.
 pub struct StackVecIter<'a, T> {
     storage: &'a [T],
     index: usize,
