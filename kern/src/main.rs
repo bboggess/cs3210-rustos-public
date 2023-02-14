@@ -15,11 +15,21 @@ pub mod mutex;
 pub mod shell;
 
 use console::kprintln;
+use core::time::Duration;
+use pi::gpio::Gpio;
 
-// FIXME: You need to add dependencies here to
-// test your drivers (Phase 2). Add them as needed.
+unsafe fn kmain() -> ! {
+    let mut gpio_pin = Gpio::new(16).into_output();
 
-fn kmain() -> ! {
-    // FIXME: Start the shell.
-    unimplemented!()
+    let mut state = 0;
+    loop {
+        if state == 0 {
+            gpio_pin.set();
+        } else {
+            gpio_pin.clear();
+        }
+
+        state = (state + 1) % 2;
+        pi::timer::spin_sleep(Duration::from_millis(500));
+    }
 }
