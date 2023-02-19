@@ -115,9 +115,7 @@ impl MiniUart {
         let end_time = self.timeout.map(|timeout| timeout + timer::current_time());
 
         while !self.has_byte() {
-            let is_timed_out = end_time
-                .map(|end_time| timer::current_time() >= end_time)
-                .unwrap_or(false); // can never time out if no timeout set
+            let is_timed_out = end_time.map_or(false, |end_time| timer::current_time() >= end_time);
 
             if is_timed_out {
                 return Err(());
