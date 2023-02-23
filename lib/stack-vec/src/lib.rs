@@ -15,12 +15,12 @@ use core::ops::{Deref, DerefMut};
 /// results in `push` being fallible: if `push` is called when the vector is
 /// full, an `Err` is returned.
 #[derive(Debug)]
-pub struct StackVec<'a, T: 'a> {
+pub struct StackVec<'a, T> {
     storage: &'a mut [T],
     len: usize,
 }
 
-impl<'a, T: 'a> StackVec<'a, T> {
+impl<'a, T> StackVec<'a, T> {
     /// Constructs a new, empty `StackVec<T>` using `storage` as the backing
     /// store. The returned `StackVec` will be able to hold `storage.len()`
     /// values.
@@ -109,7 +109,7 @@ impl<'a, T: 'a> StackVec<'a, T> {
     }
 }
 
-impl<'a, T: Clone + 'a> StackVec<'a, T> {
+impl<'a, T: Clone> StackVec<'a, T> {
     /// If this vector is not empty, removes the last element from this vector
     /// by cloning it and returns it. Otherwise returns `None`.
     pub fn pop(&mut self) -> Option<T> {
