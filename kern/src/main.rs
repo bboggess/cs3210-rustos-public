@@ -14,15 +14,6 @@ pub mod console;
 pub mod mutex;
 pub mod shell;
 
-use console::kprintln;
-use core::fmt::Write;
-use pi::uart::MiniUart;
-
 unsafe fn kmain() -> ! {
-    let mut uart = MiniUart::new();
-
-    loop {
-        let byte = uart.read_byte();
-        uart.write_byte(byte);
-    }
+    shell::shell(">");
 }
