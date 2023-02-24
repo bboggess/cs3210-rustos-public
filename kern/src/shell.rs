@@ -49,9 +49,14 @@ const MAX_ARGUMENTS: usize = 64;
 /// Starts a shell using `prefix` as the prefix for each line. This function
 /// returns if the `exit` command is called.
 pub fn shell(prefix: &str) -> ! {
+    // Each visible character entered will be buffered here
+    let mut input_buf = [0u8; MAX_COMMAND_LEN];
+
     loop {
+        // Set aside some memory to hold the argument strings the user enters.
+        // We need to reset this every loop, or else there will be dangling
+        // references to input_buf  left on every run through.
         let mut command_buf = [""; MAX_ARGUMENTS];
-        let mut input_buf = [0u8; MAX_COMMAND_LEN];
 
         kprint!("{} ", prefix);
 
