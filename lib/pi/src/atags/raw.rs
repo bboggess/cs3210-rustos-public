@@ -18,9 +18,20 @@ impl Atag {
     pub const VIDEOLFB: u32 = 0x54410008;
     pub const CMDLINE: u32 = 0x54410009;
 
-    /// FIXME: Returns the ATAG following `self`, if there is one.
     pub fn next(&self) -> Option<&Atag> {
-        unimplemented!()
+        // We're going to do unsafe things with addresses later, so
+        // let's be extra pedantic and make sure we defintely have a next tag
+        if self.tag == Atag::NONE {
+            return None;
+        }
+
+        let cur_start_addr = self as *const Atag as *const u32;
+        let cur_tag_size = self.dwords as usize; // counts number of 32 bit dwords in the current tag
+
+        unsafe {
+            let next_tag = cur_start_addr.add(cur_tag_size) as *const Atag;
+            Some(&*next_tag)
+        }
     }
 }
 

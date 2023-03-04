@@ -23,9 +23,12 @@ impl Atags {
 impl Iterator for Atags {
     type Item = Atag;
 
-    // FIXME: Implement `Iterator` for `Atags`
     fn next(&mut self) -> Option<Atag> {
-        unimplemented!()
+        // We want to return the tag currently pointed to be ptr, not the next one
+        let next_tag = self.ptr.map(|tag| Atag::from(tag));
+        self.ptr = self.ptr.and_then(|tag| tag.next());
+
+        next_tag
     }
 }
 
