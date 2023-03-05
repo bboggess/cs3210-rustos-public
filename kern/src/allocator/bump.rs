@@ -53,9 +53,10 @@ impl LocalAlloc for Allocator {
 
         let start_addr = align_up(self.current, layout.align());
         let new_cur = start_addr.saturating_add(layout.size());
+        let space_allocated = new_cur.saturating_sub(start_addr);
 
         // handle out of memory
-        if new_cur > self.end {
+        if new_cur > self.end || space_allocated < layout.size() {
             return ptr::null_mut();
         }
 
