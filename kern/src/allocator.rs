@@ -77,8 +77,23 @@ extern "C" {
 pub fn memory_map() -> Option<(usize, usize)> {
     let page_size = 1 << 12;
     let binary_end = unsafe { (&__text_end as *const u8) as usize };
+    let mem_begin = util::align_up(binary_end, page_size);
 
-    unimplemented!("memory map")
+    for tag in Atags::get() {
+        if let Some(mem) = tag.mem() {
+            let mem_end = (mem.start + mem.size) as usize;
+
+            if mem_begin >= mem_end {
+                // If for some reason this memory area ends before our kernel binary
+                // ends, just keep looking for another memory region before giving up
+                continue;
+            }
+
+            return Some((mem_begin, mem_end));
+        }
+    }
+
+    None
 }
 
 impl fmt::Debug for Allocator {
