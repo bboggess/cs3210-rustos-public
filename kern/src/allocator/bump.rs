@@ -46,17 +46,20 @@ impl LocalAlloc for Allocator {
     /// or `layout` does not meet this allocator's
     /// size or alignment constraints.
     unsafe fn alloc(&mut self, layout: Layout) -> *mut u8 {
+        let size = layout.size();
+        let align = layout.align();
+
         // prevent undefined behavior from badly constructed Layout
-        if layout.size() == 0 || !layout.align().is_power_of_two() {
+        if size == 0 || !align.is_power_of_two() {
             return ptr::null_mut();
         }
 
-        let start_addr = align_up(self.current, layout.align());
-        let new_cur = start_addr.saturating_add(layout.size());
+        let start_addr = align_up(self.current, align);
+        let new_cur = start_addr.saturating_add(size);
         let space_allocated = new_cur.saturating_sub(start_addr);
 
         // handle out of memory
-        if new_cur > self.end || space_allocated < layout.size() {
+        if new_cur > self.end || space_allocated < size {
             return ptr::null_mut();
         }
 
