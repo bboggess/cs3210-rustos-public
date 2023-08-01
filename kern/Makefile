@@ -3,7 +3,7 @@ ROOT := $(shell git rev-parse --show-toplevel)
 KERN := kernel
 TARGET := target/aarch64-unknown-none/release/${KERN}
 SDCARD ?= $(ROOT)/ext/fat32-imgs/mock1.fat32.img
-OBJCPY := cargo objcopy -- --strip-all -O binary
+OBJCPY := cargo objcopy --bin ${KERN} -- --strip-all -O binary
 TTY_PATH := /dev/ttyUSB0
 QEMU_ARGS ?=
 
@@ -18,7 +18,7 @@ build:
 	@cp -f $(TARGET) build/$(KERN).elf
 
 	@echo "+ Building build/$(KERN).bin [objcopy]"
-	@$(OBJCPY) $(TARGET) build/$(KERN).bin
+	@$(OBJCPY) build/$(KERN).bin
 
 check:
 	@cargo xcheck
