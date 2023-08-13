@@ -37,12 +37,15 @@ pub trait BlockDevice: Send {
         unsafe {
             vec.set_len(start + sector_size);
         }
-        // XXX. handle: clean-up dirty data when failed
-        let read = self.read_sector(n, &mut vec[start..])?;
+       
+        let res = self.read_sector(n, &mut vec[start..]);
         unsafe {
-            vec.set_len(start + read);
+            match res {
+                Ok(read) => vec.set_len(start + read),
+                Err(_) => vec.set_len(start),
+            };
         }
-        Ok(read)
+        res
     }
 
     /// Overwrites sector `n` with the contents of `buf`.
