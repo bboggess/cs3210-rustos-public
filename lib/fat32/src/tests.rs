@@ -12,7 +12,7 @@ use crate::traits::*;
 use crate::vfat;
 
 use mbr::{MasterBootRecord, PartitionEntry, CHS};
-use vfat::{BiosParameterBlock, VFat, VFatHandle};
+use vfat::{BiosParameterBlock, VFat, VFatHandle, FatEntry};
 
 #[derive(Clone)]
 struct StdVFatHandle(Arc<Mutex<VFat<Self>>>);
@@ -473,4 +473,67 @@ fn shuffle_test() {
 
     let hash = hash_files_recursive_from(vfat, "/");
     assert_hash_eq!("mock 1 file hashes", hash, hash_for!("files-1"));
+}
+
+#[test]
+fn fat_entry_free() {
+    let entry = FatEntry(0x00000000);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Free);
+}
+
+#[test]
+fn fat_entry_bad() {
+    let entry = FatEntry(0xFFFFFFF7);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Bad);
+}
+
+#[test]
+fn fat_entry_data() {
+    let entry = FatEntry(0x00000002);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Data(vfat::Cluster::from(2)));
+
+    let entry = FatEntry(0xAB123456);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Data(vfat::Cluster::from(0x0B123456)));
+
+    let entry = FatEntry(0xFFFFFFEF);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Data(vfat::Cluster::from(0x0FFFFFEF)));
+}
+
+#[test]
+fn fat_entry_eoc() {
+    let entry = FatEntry(0xFFFFFFF8);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Eoc(0x0FFFFFF8));
+
+    let entry = FatEntry(0xFFFFFFFF);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Eoc(0x0FFFFFFF));
+
+    let entry = FatEntry(0xFFFFFFFA);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Eoc(0x0FFFFFFA));
+}
+
+#[test]
+fn fat_entry_reserved() {
+    let entry = FatEntry(0x00000001);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Reserved);
+
+    let entry = FatEntry(0xFFFFFFF0);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Reserved);
+
+    let entry = FatEntry(0xFFFFFFF6);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Reserved);
+
+    let entry = FatEntry(0xFFFFFFF3);
+    let status = entry.status();
+    assert_eq!(status, vfat::Status::Reserved);
 }
